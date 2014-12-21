@@ -1,0 +1,58 @@
+---
+title: 'Course Project: Statistical Inference - Part 2'
+author: "iyermobile"
+date: "Dec/21/2014"
+output:
+  html_document: default
+  pdf_document:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 6
+    highlight: default
+fontsize: 10pt
+---
+
+####  Repository URL : [https://github.com/iyermobile/Statistical-Inference]
+
+##  Project Goal: 
+This is the project for the statistical inference class. In it, you will use simulation to explore inference and do some simple inferential data analysis. The project consists of two parts:
+
+1. A simulation exercise.
+2. Basic inferential data analysis.
+
+## About Course Objective:
+* To analyze the ToothGrowth data in the R datasets package. 
+* Load the ToothGrowth data and perform some basic exploratory data analyses 
+* Provide a basic summary of the data.
+* Use confidence intervals and/or hypothesis tests to compare tooth growth by supplements and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+* State your conclusions and the assumptions needed for your conclusions. 
+
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, message=FALSE}
+library(knitr)
+library(grid)
+library(gridExtra)
+library(ggplot2)
+aggr1 <- aggregate( len ~ . , data = ToothGrowth, FUN = mean )
+aggr2 <- aggregate( len ~ . , data = ToothGrowth, FUN = sd )
+aggrToothGrowth <- merge(aggr1, aggr2, by.x = c("supp", "dose"), by.y = c("supp", "dose"), all.y = F)
+names(aggrToothGrowth) <- c("supp", "dose", "len.mean", "len.sd")
+```
+
+Summary of means and standard deviations of each supplement and dose combination.
+
+```{r, echo=FALSE, message=FALSE, warnings=FALSE, message=FALSE}
+p <- qplot(dose, len, data=ToothGrowth, formula=y~x, color = supp)
+suppressWarnings(p <- p + geom_smooth())
+suppressWarnings(grid.arrange(tableGrob(aggrToothGrowth), p, ncol=2))
+```
+
+Hypothesis: OJ corresponds to greater tooth growth than VC across all dosages.
+Assumptions: Subjects are not identical in the two groups.
+
+```{r, echo = F}
+plot(len ~ supp, data = ToothGrowth, main = "Tooth growth by supplement across all dosages.")
+t.test(len ~ supp, paired = F, val.equal = FALSE, data = ToothGrowth, alternative = "greater")
+```
+
+CI is entirely greater than 0, which suggests OJ corresponds to greater tooth growth.
